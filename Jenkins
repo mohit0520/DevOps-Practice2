@@ -1,0 +1,75 @@
+pipeline{
+	agent any
+	environment{
+		App="college-erp-dev"
+		Image="newimage:local"
+	}
+	stages{
+		stage("Fetch Code"){
+			steps{
+				echo("This stage is cloning the code")
+				git branch: "master", url: "https://github.com/mohit0520/DevOps-Practice2.git"
+			}
+		}
+		stage("Build Image"){
+			steps{
+				echo("Building a docker image")
+				sh "whoami"
+				sh "docker build -t ${Image} ."
+			}	
+		}
+		stage("Creating Namespace"){
+			steps{
+				echo("Namespace")
+				sh '''
+				kubectl delete namespace ${App} --ignore-not-found=true
+				kubectl apply -f base/namespace.yml
+				kubectl get namespaces
+				'''
+			}
+		}
+		stage("Kubernetes Deployment"){
+			steps{
+				echo("Deploying")
+				sh '''
+				kubectl delete deployment web-demo-purpose -n ${App} --ignore-not-found=true
+				kubectl apply -f base/deployment.yml
+				'''
+			}
+		
+		}
+		stage("Waiting for service to start"){
+			steps{
+				sleep time: 3, unit: 'SECONDS'
+			}
+		}
+		stage("Check if Pods are running"){
+			steps{
+				sh "kubectl get pods -n college-erp-dev"
+			}
+		}
+		stage("Kubernetes Service"){
+			steps{
+				echo("Service")
+				sh '''
+				kubectl delete service my-service -n ${App} --ignore-not-found=true
+				kubectl apply -f base/service.yml
+				'''
+			}
+
+		}
+		stage("Waiting"){
+			steps{
+				sleep time: 3, unit: 'SECONDS'
+			}
+
+		}
+		stage("PORTS"){
+			steps{
+				echo("Running ON Port")
+				sh "kubectl port-forward service/my-service -n ${App} 8081:80 --address=0.0.0.0"
+			}
+		}
+
+	}
+}
