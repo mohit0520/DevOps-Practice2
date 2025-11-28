@@ -25,14 +25,16 @@ This project demonstrates a complete **DevOps workflow** — from source code to
 ![WhatsApp Image 2025-11-03 at 8 25 04 PM](https://github.com/user-attachments/assets/f13edd4b-57ac-4265-b568-fa7f4fdd1c3e)
 
 ```mermaid
-flowchart
-A[GitHub Repository] -->|Clone| B[Docker Build]
-C -->[Docker Image:local] D[Kind Cluster]
-D -->|Deploy via| E[Helm Charts]
-E -->|Monitor| F[Prometheus]
-F -->|Visualize| G[Grafana]
-A -->|Trigger CI/CD| H[Jenkins Pipeline]
-H -->|Deploy Updates| D
+
+flowchart LR
+    A[GitHub Repository] -->|Clone| B[Docker Build]
+    B --> C[Docker Image - Local]
+    C --> D[Kind Cluster]
+    D -->|Deploy via| E[Helm Charts]
+    E -->|Monitor| F[Prometheus]
+    F -->|Visualize| G[Grafana]
+    A -->|Trigger CI/CD| H[Jenkins Pipeline]
+    H -->|Deploy Updates| D
 
 ```
 
@@ -42,13 +44,19 @@ H -->|Deploy Updates| D
 
 1. Clone project
 
-```mermaid
-git clone https://github.com/<your-username>/<your-repo>.git
-cd <your-repo>
+```bash
+
+sudo apt update
+sudo apt install -y docker.io
+sudo systemctl enable --now docker
+docker --version
+
+
 ```
 2. Install Docker(Ubuntu)
 
-```mermaid
+```bash
+
 sudo apt update
 sudo apt install -y docker.io
 sudo systemctl enable --now docker
@@ -57,12 +65,15 @@ docker --version
 ```
 3. Build Image
 
-```mermaid
+```bash
+
 docker build -t <dockerhub-user>/<image-name>:v1 .
+
 ```
 4. Run Container locally
 
-```mermaid
+```bash
+
 docker run -d --name myapp -p 8080:8080 <dockerhub-user>/<image-name>:v1
 
 ```
@@ -71,7 +82,7 @@ docker run -d --name myapp -p 8080:8080 <dockerhub-user>/<image-name>:v1
 
 1. Install Kind
 
-```mermaid
+```bash
 curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.22.0/kind-linux-amd64
 chmod +x ./kind
 sudo mv kind /usr/local/bin/kind
@@ -79,7 +90,8 @@ kind --version
 ```
 2. Create a cluster
 
-```mermaid
+```bash
+
 kind create cluster --name dev-cluster
 kubectl cluster-info --context kind-dev-cluster
 kubectl get nodes
@@ -88,7 +100,8 @@ kubectl get nodes
 ```
 
 3. Load local Docker image into Kind
-```mermaid
+```bash
+
 kind load docker-image <dockerhub-user>/<image-name>:v1 --name dev-cluster
 
 ```
@@ -100,7 +113,8 @@ kind load docker-image <dockerhub-user>/<image-name>:v1 --name dev-cluster
 ## 🎩 Helm + Prometheus + Grafana (monitoring)
 
 1. Install Helm & add repos
-```mermaid
+```bash
+
 curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo add grafana https://grafana.github.io/helm-charts
@@ -108,28 +122,30 @@ helm repo update
 
 ```
 2. Install kube-prometheus-stack
-```mermaid
+```bash
+
 kubectl create namespace monitoring
 helm install monitoring prometheus-community/kube-prometheus-stack -n monitoring -f monitoring-values.yaml
 
 ```
 4. Verify services
-```mermaid
+```bash
 kubectl get svc -n monitoring
-
 ```
+
 5. Access Prometheus & Grafana locally
-```mermaid
+```bash
 kubectl port-forward svc/prometheus-operated 9090:9090 -n monitoring
 # Open http://localhost:9090
 kubectl port-forward svc/monitoring-grafana 3000:80 -n monitoring
 # Open http://localhost:3000
 ```
+
 ![WhatsApp Image 2025-11-10 at 1 49 50 PM](https://github.com/user-attachments/assets/6695d492-8f7e-4c2c-9ff5-557e7bcfe00d)
 
 ## ⚙️ Jenkins — CI/CD pipeline
 
-```mermaid
+
 This project includes a fully automated CI/CD pipeline using Jenkins, which handles building, containerizing, and deploying the application.
 
 🔧 What the Pipeline Does
@@ -142,9 +158,12 @@ Builds a Docker image
 
 Deploys to Kubernetes (or server)
 
-```
 ```mermaid
 
-Git Commit → Jenkins Build →  Docker Build → Docker Push → Deploy the application using **Kubernetes cluster**
+flowchart LR
+A[Git Commit] --> B[Jenkins Build]
+B --> C[Docker Build]
+C --> D[Docker Push]
+D --> E[Kubernetes Deploy]
 
 ```
