@@ -22,6 +22,8 @@ This project demonstrates a complete **DevOps workflow** — from source code to
 
 ## 🧩 Architecture Diagram
 
+![WhatsApp Image 2025-11-03 at 8 25 04 PM](https://github.com/user-attachments/assets/f13edd4b-57ac-4265-b568-fa7f4fdd1c3e)
+
 ```mermaid
 flowchart
 A[GitHub Repository] -->|Clone| B[Docker Build]
@@ -81,13 +83,19 @@ kind --version
 kind create cluster --name dev-cluster
 kubectl cluster-info --context kind-dev-cluster
 kubectl get nodes
+![WhatsApp Image 2025-11-03 at 8 27 49 PM (4)](https://github.com/user-attachments/assets/87b83f2d-bc98-4141-91e1-22f0a58b9a8d)
 
 ```
+
 3. Load local Docker image into Kind
 ```mermaid
 kind load docker-image <dockerhub-user>/<image-name>:v1 --name dev-cluster
 
 ```
+![WhatsApp Image 2025-11-03 at 8 27 49 PM (4)](https://github.com/user-attachments/assets/78b5f7c4-aa80-460f-9773-af857a816de6)
+![WhatsApp Image 2025-11-03 at 8 27 49 PM (3)](https://github.com/user-attachments/assets/5d751483-56ef-4034-bdfb-a929a098beab)
+![WhatsApp Image 2025-11-03 at 8 27 49 PM (2)](https://github.com/user-attachments/assets/0de9fd62-ec63-4e79-aca2-817af607ba71)
+
 
 ## 🎩 Helm + Prometheus + Grafana (monitoring)
 
@@ -117,8 +125,26 @@ kubectl port-forward svc/prometheus-operated 9090:9090 -n monitoring
 kubectl port-forward svc/monitoring-grafana 3000:80 -n monitoring
 # Open http://localhost:3000
 ```
-
-## Automation
+![WhatsApp Image 2025-11-10 at 1 49 50 PM](https://github.com/user-attachments/assets/6695d492-8f7e-4c2c-9ff5-557e7bcfe00d)
 
 ## ⚙️ Jenkins — CI/CD pipeline
 
+```mermaid
+This project includes a fully automated CI/CD pipeline using Jenkins, which handles building, containerizing, and deploying the application.
+
+🔧 What the Pipeline Does
+
+Automatically triggers on every Git commit
+
+Builds the application
+
+Builds a Docker image
+
+Deploys to Kubernetes (or server)
+
+```
+```mermaid
+
+Git Commit → Jenkins Build →  Docker Build → Docker Push → Deploy the application using **Kubernetes cluster**
+
+```
